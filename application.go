@@ -10,7 +10,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"regexp"
+    "regexp"
+    "os"
 )
 //var validPath = regexp.MustCompile("^/(user|comment|car|post)/([a-zA-Z0-9]+)?$")
 var validPath = regexp.MustCompile("^/(user|comment|car|post)/([0-9]+)?$")
@@ -390,7 +391,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string){
 func main() {
     port := os.Getenv("PORT")
     if port == "" {
-        port = "80"
+        port = "5000"
         }
     http.HandleFunc("/car/", carHandler)
     http.HandleFunc("/comment/", commentHandler)
