@@ -388,6 +388,10 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string){
 
 //localhost:8080/view/FrontPage
 func main() {
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "80"
+        }
     http.HandleFunc("/car/", carHandler)
     http.HandleFunc("/comment/", commentHandler)
     http.HandleFunc("/user/", userHandler)
@@ -395,6 +399,5 @@ func main() {
 
     //http.HandleFunc("/", frontHandler)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-
