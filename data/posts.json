@@ -1,0 +1,50 @@
+[
+    {
+        "id": 0,
+        "text": "Lorem Ipsum",
+        "car":
+        {
+            "id": 0,
+            "model": "Ford",
+            "manufacturer": "Focus",
+            "year": 1999
+        },
+        "user": 
+        {
+            "id": 0,
+            "username": "Vardenis"
+        }
+      },
+      {
+        "id": 1,
+        "text": "Lorem Ipsum",
+        "car":
+        {
+            "id": 0,
+            "model": "Ford",
+            "manufacturer": "Focus",
+            "year": 1999
+        },
+        "user": 
+        {
+            "id": 0,
+            "username": "Vardenis"
+        }
+      },
+      {
+        "id": 2,
+        "text": "Lorem Ipsum",
+        "car":
+        {
+            "id": 0,
+            "model": "Ford",
+            "manufacturer": "Focus",
+            "year": 1999
+        },
+        "user": 
+        {
+            "id": 0,
+            "username": "Vardenis"
+        }
+      }
+    ]

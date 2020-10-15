@@ -1,0 +1,13 @@
+{
+    "id": 0,
+    "text": "Lorem Ipsum",
+    "post":
+    {
+        "id": 0
+    },
+    "user": 
+    {
+        "id": 0,
+        "username": "Vardenis"
+    }
+  }

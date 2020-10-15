@@ -1,0 +1,41 @@
+[
+    {
+    "id": 0,
+    "text": "Lorem Ipsum",
+    "post":
+    {
+        "id": 0
+    },
+    "user": 
+    {
+        "id": 1,
+        "username": "Vardenis"
+    }
+  },
+  {
+    "id": 1,
+    "text": "Lorem Ipsum",
+    "post":
+    {
+        "id": 0
+    },
+    "user": 
+    {
+        "id": 0,
+        "username": "Vardenis"
+    }
+  },
+  {
+    "id": 2,
+    "text": "Lorem Ipsum",
+    "post":
+    {
+        "id": 0
+    },
+    "user": 
+    {
+        "id": 2,
+        "username": "Vardenis"
+    }
+  }
+]

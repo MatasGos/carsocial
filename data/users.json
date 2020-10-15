@@ -1,0 +1,29 @@
+[
+    {
+    "id": 0,
+    "name": "Vardenis",
+    "username": "JohnDoe",
+    "phone": "123456789",
+    "email": "JD@mail.net",
+    "usercreated": "2000-01-01",
+    "role": "user"
+    },
+    {
+    "id": 1,
+    "name": "test",
+    "username": "test",
+    "phone": "123456789",
+    "email": "test@test.test",
+    "usercreated": "2000-01-01",
+    "role": "user"
+    },
+    {
+        "id": 1,
+        "name": "admin",
+        "username": "admin",
+        "phone": "123456789",
+        "email": "admin@admin.admin",
+        "usercreated": "2000-01-01",
+        "role": "admin"
+        }
+]

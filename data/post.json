@@ -1,0 +1,17 @@
+
+    {
+        "id": 0,
+        "text": "Lorem Ipsum",
+        "car":
+        {
+            "id": 0,
+            "model": "Ford",
+            "manufacturer": "Focus",
+            "year": 1999
+        },
+        "user": 
+        {
+            "id": 0,
+            "username": "Vardenis"
+        }
+      }

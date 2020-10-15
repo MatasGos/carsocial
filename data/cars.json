@@ -1,0 +1,45 @@
+[
+    {
+        "id": 0,
+        "model": "Ford",
+        "manufacturer": "Focus",
+        "plate": null,
+        "color": "silver",
+        "caradded": "2000-01-01",
+        "year": 1999,
+        "user": 
+        {
+            "id": 0,
+            "username": "Vardenis"
+        }
+        
+      },
+      {
+      "id": 1,
+        "model": "VW",
+        "manufacturer": "Golf",
+        "plate": null,
+        "color": "blue",
+        "caradded": "2000-01-01",
+        "year": 1999,
+        "user": 
+        {
+            "id": 0,
+            "username": "Vardenis"
+        }
+    },
+    {
+        "id": 2,
+        "model": "Fiat",
+        "manufacturer": "500",
+        "plate": null,
+        "color": "red",
+        "caradded": "2000-01-01",
+        "year": 1980,
+        "user": 
+        {
+            "id": 1,
+            "username": "JohnDoe"
+        }
+    }
+]
