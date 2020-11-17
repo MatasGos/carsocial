@@ -5,147 +5,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"regexp"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
-//var validPath = regexp.MustCompile("^/(user|comment|car|post)/([a-zA-Z0-9]+)?$")
-var validPath = regexp.MustCompile("^/(user|comment|car|post)/([0-9]+)?$")
-
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
-		fmt.Print(m)
-		if m == nil {
-			http.NotFound(w, r)
-			return
-		}
-		if m[2] == "" {
-			m[1] = m[1] + "s"
-		}
-		fn(w, r, m[1])
-	}
-}
-func carHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getCarList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postCar(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getCar(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putCar(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deleteCar(w, r)
-				return
-			}
-		}
-	}
-	http.NotFound(w, r)
-}
-
-func postHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getPostList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postPost(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getPost(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putPost(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deletePost(w, r)
-				return
-			}
-		}
-	}
-	http.NotFound(w, r)
-}
-
-func commentHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getCommentList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postComment(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getComment(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putComment(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deleteComment(w, r)
-				return
-			}
-		}
-	}
-	http.NotFound(w, r)
-}
-
-func userHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getUserList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postUser(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getUser(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putUser(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deleteUser(w, r)
-				return
-			}
-		}
-	}
-
-	http.NotFound(w, r)
-}
 func postCar(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("car")
 	if err != nil {
@@ -386,19 +256,83 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%s", p)
 }
+func paginate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// just a stub.. some ideas are to look at URL query params for something like
+		// the page number, or the limit, and send a query cursor down the chain
+		next.ServeHTTP(w, r)
+	})
+}
 
-//localhost:8080/view/FrontPage
+//localhost:5000/view/FrontPage
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"
 	}
-	http.HandleFunc("/car/", carHandler)
-	http.HandleFunc("/comment/", commentHandler)
-	http.HandleFunc("/user/", userHandler)
-	http.HandleFunc("/post/", postHandler)
+	flag.Parse()
+	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	//http.HandleFunc("/", frontHandler)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("frontpage"))
+	})
 
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("pong"))
+	})
+
+	r.Route("/cars", func(r chi.Router) {
+		r.With(paginate).Get("/", getCarList) // GET /articles
+
+		r.Post("/", postUser) // POST /articles
+
+		// Subrouters:
+		r.Route("/{carID}", func(r chi.Router) {
+			r.Get("/", getCar)       // GET /articles/123
+			r.Put("/", putCar)       // PUT /articles/123
+			r.Delete("/", deleteCar) // DELETE /articles/123
+		})
+	})
+	r.Route("/users", func(r chi.Router) {
+		r.With(paginate).Get("/", getUserList) // GET /articles
+
+		r.Post("/", putUser) // POST /articles
+
+		// Subrouters:
+		r.Route("/{userId}", func(r chi.Router) {
+			r.Get("/", getUser)       // GET /articles/123
+			r.Put("/", putUser)       // PUT /articles/123
+			r.Delete("/", deleteUser) // DELETE /articles/123
+		})
+	})
+	r.Route("/posts", func(r chi.Router) {
+		r.With(paginate).Get("/", getPostList) // GET /articles
+
+		r.Post("/", postCar) // POST /articles
+
+		// Subrouters:
+		r.Route("/{postID}", func(r chi.Router) {
+			r.Get("/", getPost)       // GET /articles/123
+			r.Put("/", putPost)       // PUT /articles/123
+			r.Delete("/", deletePost) // DELETE /articles/123
+		})
+	})
+	r.Route("/comments", func(r chi.Router) {
+		r.With(paginate).Get("/", getCommentList) // GET /articles
+
+		r.Post("/", putComment) // POST /articles
+
+		// Subrouters:
+		r.Route("/{commentID}", func(r chi.Router) {
+			r.Get("/", getComment)       // GET /articles/123
+			r.Put("/", putComment)       // PUT /articles/123
+			r.Delete("/", deleteComment) // DELETE /articles/123
+		})
+	})
+
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
