@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func postUser(w http.ResponseWriter, r *http.Request) {
+func PostUser(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("user")
 	if err != nil {
 		http.NotFound(w, r)
@@ -17,7 +17,7 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", p)
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) {
+func GetUser(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("user")
 	if err != nil {
 		http.NotFound(w, r)
@@ -27,7 +27,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", p)
 }
 
-func putUser(w http.ResponseWriter, r *http.Request) {
+func PutUser(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("user")
 	if err != nil {
 		http.NotFound(w, r)
@@ -37,7 +37,7 @@ func putUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", p)
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("users")
 	if err != nil {
 		http.NotFound(w, r)
@@ -47,7 +47,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", p)
 }
 
-func getUserList(w http.ResponseWriter, r *http.Request) {
+func GetUserList(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("users")
 	if err != nil {
 		http.NotFound(w, r)
