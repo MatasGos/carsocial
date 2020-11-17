@@ -18,7 +18,7 @@ import (
 
 //==================================
 func postCar(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("car")
+	p, err := loadJSON("car")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -30,7 +30,7 @@ func postCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCar(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("car")
+	p, err := loadJSON("car")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -40,7 +40,7 @@ func getCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func putCar(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("car")
+	p, err := loadJSON("car")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -50,7 +50,7 @@ func putCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteCar(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("cars")
+	p, err := loadJSON("cars")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -60,7 +60,7 @@ func deleteCar(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCarList(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("cars")
+	p, err := loadJSON("cars")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -71,7 +71,7 @@ func getCarList(w http.ResponseWriter, r *http.Request) {
 
 //===================================
 func postUser(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("user")
+	p, err := loadJSON("user")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -83,7 +83,7 @@ func postUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("user")
+	p, err := loadJSON("user")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -93,7 +93,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func putUser(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("user")
+	p, err := loadJSON("user")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -103,7 +103,7 @@ func putUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteUser(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("users")
+	p, err := loadJSON("users")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -113,7 +113,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUserList(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("users")
+	p, err := loadJSON("users")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -124,7 +124,7 @@ func getUserList(w http.ResponseWriter, r *http.Request) {
 
 //===================================
 func postPost(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("post")
+	p, err := loadJSON("post")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -136,7 +136,7 @@ func postPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPost(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("post")
+	p, err := loadJSON("post")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -146,7 +146,7 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func putPost(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("post")
+	p, err := loadJSON("post")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -156,7 +156,7 @@ func putPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func deletePost(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("posts")
+	p, err := loadJSON("posts")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -166,7 +166,7 @@ func deletePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPostList(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("posts")
+	p, err := loadJSON("posts")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -177,7 +177,7 @@ func getPostList(w http.ResponseWriter, r *http.Request) {
 
 //===================================
 func postComment(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("comment")
+	p, err := loadJSON("comment")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -189,7 +189,7 @@ func postComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func getComment(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("comment")
+	p, err := loadJSON("comment")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -199,7 +199,7 @@ func getComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func putComment(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("comment")
+	p, err := loadJSON("comment")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -209,7 +209,7 @@ func putComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteComment(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("comment")
+	p, err := loadJSON("comment")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -219,7 +219,7 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCommentList(w http.ResponseWriter, r *http.Request) {
-	p, err := loadJson("comment")
+	p, err := loadJSON("comment")
 	if err != nil {
 		http.NotFound(w, r)
 		fmt.Print(err)
@@ -230,7 +230,7 @@ func getCommentList(w http.ResponseWriter, r *http.Request) {
 
 //---------------------------------------
 
-func loadJson(title string) (string, error) {
+func loadJSON(title string) (string, error) {
 	filename := "data/" + title + ".json"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -239,7 +239,7 @@ func loadJson(title string) (string, error) {
 	return string(body), nil
 }
 
-func loadJsonList(title string) (string, error) {
+func loadJSONList(title string) (string, error) {
 	filename := "data/" + title + "s.json"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -249,7 +249,7 @@ func loadJsonList(title string) (string, error) {
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := loadJson(title)
+	p, err := loadJSON(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
 		return
