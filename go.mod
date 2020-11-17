@@ -1,4 +1,4 @@
-module github.com/MatasGos/carsocial/api
+module github.com/MatasGos/simple
 
 go 1.15
 
