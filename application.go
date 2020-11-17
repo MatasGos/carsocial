@@ -5,16 +5,201 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"regexp"
 )
 
+<<<<<<< HEAD
+=======
+//var validPath = regexp.MustCompile("^/(user|comment|car|post)/([a-zA-Z0-9]+)?$")
+var validPath = regexp.MustCompile("^/(user|comment|car|post)/([0-9]+)?$")
+
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		m := validPath.FindStringSubmatch(r.URL.Path)
+		fmt.Print(m)
+		if m == nil {
+			http.NotFound(w, r)
+			return
+		}
+		if m[2] == "" {
+			m[1] = m[1] + "s"
+		}
+		fn(w, r, m[1])
+	}
+}
+func carHandler(w http.ResponseWriter, r *http.Request) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	w.Header().Set("Content-Type", "application/json")
+
+	if len(m) > 2 {
+		if m[2] == "" {
+			if r.Method == "GET" {
+				getCarList(w, r)
+				return
+			} else if r.Method == "POST" {
+				postCar(w, r)
+				return
+			}
+		} else {
+			if r.Method == "GET" {
+				getCar(w, r)
+				return
+			} else if r.Method == "PUT" {
+				putCar(w, r)
+				return
+			} else if r.Method == "DELETE" {
+				deleteCar(w, r)
+				return
+			}
+		}
+	}
+	http.NotFound(w, r)
+}
+
+func postHandler(w http.ResponseWriter, r *http.Request) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	w.Header().Set("Content-Type", "application/json")
+
+	if len(m) > 2 {
+		if m[2] == "" {
+			if r.Method == "GET" {
+				getPostList(w, r)
+				return
+			} else if r.Method == "POST" {
+				postPost(w, r)
+				return
+			}
+		} else {
+			if r.Method == "GET" {
+				getPost(w, r)
+				return
+			} else if r.Method == "PUT" {
+				putPost(w, r)
+				return
+			} else if r.Method == "DELETE" {
+				deletePost(w, r)
+				return
+			}
+		}
+	}
+	http.NotFound(w, r)
+}
+
+func commentHandler(w http.ResponseWriter, r *http.Request) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	w.Header().Set("Content-Type", "application/json")
+
+	if len(m) > 2 {
+		if m[2] == "" {
+			if r.Method == "GET" {
+				getCommentList(w, r)
+				return
+			} else if r.Method == "POST" {
+				postComment(w, r)
+				return
+			}
+		} else {
+			if r.Method == "GET" {
+				getComment(w, r)
+				return
+			} else if r.Method == "PUT" {
+				putComment(w, r)
+				return
+			} else if r.Method == "DELETE" {
+				deleteComment(w, r)
+				return
+			}
+		}
+	}
+	http.NotFound(w, r)
+}
+
+func userHandler(w http.ResponseWriter, r *http.Request) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	w.Header().Set("Content-Type", "application/json")
+
+	if len(m) > 2 {
+		if m[2] == "" {
+			if r.Method == "GET" {
+				getUserList(w, r)
+				return
+			} else if r.Method == "POST" {
+				postUser(w, r)
+				return
+			}
+		} else {
+			if r.Method == "GET" {
+				getUser(w, r)
+				return
+			} else if r.Method == "PUT" {
+				putUser(w, r)
+				return
+			} else if r.Method == "DELETE" {
+				deleteUser(w, r)
+				return
+			}
+		}
+	}
+
+	http.NotFound(w, r)
+}
+func postCar(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("car")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getCar(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("car")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func putCar(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("car")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func deleteCar(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("cars")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getCarList(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("cars")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+>>>>>>> parent of 35cef41... added go-chi
 //===================================
 
 //===================================
@@ -32,20 +217,14 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%s", p)
 }
-func paginate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// just a stub.. some ideas are to look at URL query params for something like
-		// the page number, or the limit, and send a query cursor down the chain
-		next.ServeHTTP(w, r)
-	})
-}
 
-//localhost:5000/view/FrontPage
+//localhost:8080/view/FrontPage
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"
 	}
+<<<<<<< HEAD
 	flag.Parse()
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -111,4 +290,14 @@ func main() {
 	})
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
+=======
+	http.HandleFunc("/car/", carHandler)
+	http.HandleFunc("/comment/", commentHandler)
+	http.HandleFunc("/user/", userHandler)
+	http.HandleFunc("/post/", postHandler)
+
+	//http.HandleFunc("/", frontHandler)
+
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+>>>>>>> parent of 35cef41... added go-chi
 }
