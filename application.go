@@ -7,7 +7,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -23,24 +22,6 @@ import (
 //===================================
 
 //---------------------------------------
-
-func loadJson(title string) (string, error) {
-	filename := "data/" + title + ".json"
-	body, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return "", err
-	}
-	return string(body), nil
-}
-
-func loadJsonList(title string) (string, error) {
-	filename := "data/" + title + "s.json"
-	body, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return "", err
-	}
-	return string(body), nil
-}
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadJson(title)
