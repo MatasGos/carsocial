@@ -5,148 +5,18 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"regexp"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
-<<<<<<< HEAD
-=======
-//var validPath = regexp.MustCompile("^/(user|comment|car|post)/([a-zA-Z0-9]+)?$")
-var validPath = regexp.MustCompile("^/(user|comment|car|post)/([0-9]+)?$")
-
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		m := validPath.FindStringSubmatch(r.URL.Path)
-		fmt.Print(m)
-		if m == nil {
-			http.NotFound(w, r)
-			return
-		}
-		if m[2] == "" {
-			m[1] = m[1] + "s"
-		}
-		fn(w, r, m[1])
-	}
-}
-func carHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getCarList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postCar(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getCar(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putCar(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deleteCar(w, r)
-				return
-			}
-		}
-	}
-	http.NotFound(w, r)
-}
-
-func postHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getPostList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postPost(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getPost(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putPost(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deletePost(w, r)
-				return
-			}
-		}
-	}
-	http.NotFound(w, r)
-}
-
-func commentHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getCommentList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postComment(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getComment(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putComment(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deleteComment(w, r)
-				return
-			}
-		}
-	}
-	http.NotFound(w, r)
-}
-
-func userHandler(w http.ResponseWriter, r *http.Request) {
-	m := validPath.FindStringSubmatch(r.URL.Path)
-	w.Header().Set("Content-Type", "application/json")
-
-	if len(m) > 2 {
-		if m[2] == "" {
-			if r.Method == "GET" {
-				getUserList(w, r)
-				return
-			} else if r.Method == "POST" {
-				postUser(w, r)
-				return
-			}
-		} else {
-			if r.Method == "GET" {
-				getUser(w, r)
-				return
-			} else if r.Method == "PUT" {
-				putUser(w, r)
-				return
-			} else if r.Method == "DELETE" {
-				deleteUser(w, r)
-				return
-			}
-		}
-	}
-
-	http.NotFound(w, r)
-}
+//==================================
 func postCar(w http.ResponseWriter, r *http.Request) {
 	p, err := loadJson("car")
 	if err != nil {
@@ -199,17 +69,187 @@ func getCarList(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", p)
 }
 
->>>>>>> parent of 35cef41... added go-chi
 //===================================
+func postUser(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("user")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("user")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func putUser(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("user")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("users")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getUserList(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("users")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
 
 //===================================
+func postPost(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("post")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getPost(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("post")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func putPost(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("post")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func deletePost(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("posts")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getPostList(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("posts")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
 
 //===================================
+func postComment(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("comment")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getComment(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("comment")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func putComment(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("comment")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func deleteComment(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("comment")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
+
+func getCommentList(w http.ResponseWriter, r *http.Request) {
+	p, err := loadJson("comment")
+	if err != nil {
+		http.NotFound(w, r)
+		fmt.Print(err)
+		return
+	}
+	fmt.Fprintf(w, "%s", p)
+}
 
 //---------------------------------------
 
+func loadJson(title string) (string, error) {
+	filename := "data/" + title + ".json"
+	body, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
+}
+
+func loadJsonList(title string) (string, error) {
+	filename := "data/" + title + "s.json"
+	body, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
+}
+
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := LoadJSON(title)
+	p, err := loadJson(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
 		return
@@ -217,14 +257,18 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%s", p)
 }
+func paginate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
 
-//localhost:8080/view/FrontPage
+//localhost:5000/view/FrontPage
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"
 	}
-<<<<<<< HEAD
 	flag.Parse()
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -241,27 +285,27 @@ func main() {
 	})
 
 	r.Route("/cars", func(r chi.Router) {
-		r.With(paginate).Get("/", GetCarList) // GET /articles
+		r.With(paginate).Get("/", getCarList) // GET /articles
 
-		r.Post("/", PostUser) // POST /articles
+		r.Post("/", postUser) // POST /articles
 
 		// Subrouters:
 		r.Route("/{carID}", func(r chi.Router) {
-			r.Get("/", GetCar)       // GET /articles/123
-			r.Put("/", PutCar)       // PUT /articles/123
-			r.Delete("/", DeleteCar) // DELETE /articles/123
+			r.Get("/", getCar)       // GET /articles/123
+			r.Put("/", putCar)       // PUT /articles/123
+			r.Delete("/", deleteCar) // DELETE /articles/123
 		})
 	})
 	r.Route("/users", func(r chi.Router) {
-		r.With(paginate).Get("/", GetUserList) // GET /articles
+		r.With(paginate).Get("/", getUserList) // GET /articles
 
-		r.Post("/", PutUser) // POST /articles
+		r.Post("/", putUser) // POST /articles
 
 		// Subrouters:
 		r.Route("/{userId}", func(r chi.Router) {
-			r.Get("/", GetUser)       // GET /articles/123
-			r.Put("/", PutUser)       // PUT /articles/123
-			r.Delete("/", DeleteUser) // DELETE /articles/123
+			r.Get("/", getUser)       // GET /articles/123
+			r.Put("/", putUser)       // PUT /articles/123
+			r.Delete("/", deleteUser) // DELETE /articles/123
 		})
 	})
 	r.Route("/posts", func(r chi.Router) {
@@ -290,14 +334,4 @@ func main() {
 	})
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
-=======
-	http.HandleFunc("/car/", carHandler)
-	http.HandleFunc("/comment/", commentHandler)
-	http.HandleFunc("/user/", userHandler)
-	http.HandleFunc("/post/", postHandler)
-
-	//http.HandleFunc("/", frontHandler)
-
-	log.Fatal(http.ListenAndServe(":"+port, nil))
->>>>>>> parent of 35cef41... added go-chi
 }
