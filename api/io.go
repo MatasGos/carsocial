@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 )
 
-func LoadJSON(title string) (string, error) {
+func loadJson(title string) (string, error) {
 	filename := "data/" + title + ".json"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -13,7 +13,7 @@ func LoadJSON(title string) (string, error) {
 	return string(body), nil
 }
 
-func LoadJSONList(title string) (string, error) {
+func loadJsonList(title string) (string, error) {
 	filename := "data/" + title + "s.json"
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {

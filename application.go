@@ -209,7 +209,7 @@ func getCarList(w http.ResponseWriter, r *http.Request) {
 //---------------------------------------
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
-	p, err := LoadJSON(title)
+	p, err := loadJson(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
 		return
@@ -241,27 +241,27 @@ func main() {
 	})
 
 	r.Route("/cars", func(r chi.Router) {
-		r.With(paginate).Get("/", GetCarList) // GET /articles
+		r.With(paginate).Get("/", getCarList) // GET /articles
 
-		r.Post("/", PostUser) // POST /articles
+		r.Post("/", postUser) // POST /articles
 
 		// Subrouters:
 		r.Route("/{carID}", func(r chi.Router) {
-			r.Get("/", GetCar)       // GET /articles/123
-			r.Put("/", PutCar)       // PUT /articles/123
-			r.Delete("/", DeleteCar) // DELETE /articles/123
+			r.Get("/", getCar)       // GET /articles/123
+			r.Put("/", putCar)       // PUT /articles/123
+			r.Delete("/", deleteCar) // DELETE /articles/123
 		})
 	})
 	r.Route("/users", func(r chi.Router) {
-		r.With(paginate).Get("/", GetUserList) // GET /articles
+		r.With(paginate).Get("/", getUserList) // GET /articles
 
-		r.Post("/", PutUser) // POST /articles
+		r.Post("/", putUser) // POST /articles
 
 		// Subrouters:
 		r.Route("/{userId}", func(r chi.Router) {
-			r.Get("/", GetUser)       // GET /articles/123
-			r.Put("/", PutUser)       // PUT /articles/123
-			r.Delete("/", DeleteUser) // DELETE /articles/123
+			r.Get("/", getUser)       // GET /articles/123
+			r.Put("/", putUser)       // PUT /articles/123
+			r.Delete("/", deleteUser) // DELETE /articles/123
 		})
 	})
 	r.Route("/posts", func(r chi.Router) {
