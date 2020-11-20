@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
-//Comment is car
+//Comment is comment
 type Comment struct {
 	ID     int    `json:"id"`
 	Text   string `json:"text"`
@@ -50,7 +50,7 @@ func PostComment(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	GetCarList(w, r)
+	GetCommentList(w, r)
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -68,7 +68,7 @@ func GetComment(w http.ResponseWriter, r *http.Request) {
 
 	switch err {
 	case sql.ErrNoRows:
-		http.Error(w, "requested car no longer exists", http.StatusNotFound)
+		http.Error(w, "requested comment no longer exists", http.StatusNotFound)
 		return
 	case nil:
 		if err != nil {
@@ -132,7 +132,7 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	GetCarList(w, r)
+	GetCommentList(w, r)
 }
 
 //GetCommentList returns comment list
@@ -149,8 +149,7 @@ func GetCommentList(w http.ResponseWriter, r *http.Request) {
 	count := 0
 	defer rows.Close()
 	for rows.Next() {
-		var comment commentSQL
-		err := rows.Scan(&comment.ID, &comment.Text, &comment.Fkpost, &comment.Fkuser)
+		err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
 		if err != nil {
 			panic(err)
 		}
