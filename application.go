@@ -14,6 +14,7 @@ import (
 	"github.com/MatasGos/simple/api"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	_ "github.com/lib/pq"
 )
 
 //=======================================
@@ -41,6 +42,9 @@ func main() {
 	if port == "" {
 		port = "5000"
 	}
+	api.OpenDatabase()
+	defer api.CloseDatabase()
+
 	flag.Parse()
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -59,7 +63,7 @@ func main() {
 	r.Route("/cars", func(r chi.Router) {
 		r.With(paginate).Get("/", api.GetCarList) // GET /articles
 
-		r.Post("/", api.PostUser) // POST /articles
+		r.Post("/", api.PostCar) // POST /articles
 
 		// Subrouters:
 		r.Route("/{carID}", func(r chi.Router) {
