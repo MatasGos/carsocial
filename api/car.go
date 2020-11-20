@@ -199,6 +199,9 @@ func GetCarList(w http.ResponseWriter, r *http.Request) {
 		"fk_user, vin FROM cars"
 
 	rows, err := Database.Query(sql)
+	if err != nil {
+		panic(err)
+	}
 	var cars [20]Car
 	count := 0
 	defer rows.Close()
