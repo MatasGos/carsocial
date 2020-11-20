@@ -141,13 +141,6 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
 	}
-
-	fmt.Println(json.Marshal(newData.Model))
-	fmt.Println(json.Marshal(newData.Manufacturer))
-	if newData.Plate == "" {
-		fmt.Println("juozasdx")
-	}
-	fmt.Println(json.Marshal(newData.Vin))
 	//update
 	sqlPut := "UPDATE public.cars SET"
 	if newData.Model != "" {
@@ -182,8 +175,6 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 //DeleteCar remove car object
 func DeleteCar(w http.ResponseWriter, r *http.Request) {
 	carID := chi.URLParam(r, "carID")
-	fmt.Println(carID)
-
 	sql := "DELETE FROM public.cars WHERE id=$1;"
 
 	err := Database.QueryRow(sql, carID).Err()
