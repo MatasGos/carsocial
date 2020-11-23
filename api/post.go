@@ -14,15 +14,15 @@ import (
 type Post struct {
 	ID     int    `json:"id"`
 	Text   string `json:"text"`
-	Fkcar  string `json:"fk_car"`
-	Fkuser string `json:"fk_user"`
+	Fkcar  int    `json:"fk_car"`
+	Fkuser int    `json:"fk_user"`
 }
 
 type postSQL struct {
 	ID     int    `json:"id"`
 	Text   string `json:"text"`
-	Fkcar  string `json:"fk_car"`
-	Fkuser string `json:"fk_user"`
+	Fkcar  int    `json:"fk_car"`
+	Fkuser int    `json:"fk_user"`
 }
 
 //PostPost create post object
@@ -59,7 +59,7 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "postID")
 	sqlQ := "SELECT 	id  ," +
 		"text ," +
-		"fk_post, fk_user FROM public.posts WHERE id=$1"
+		"fk_car, fk_user FROM public.posts WHERE id=$1"
 
 	row := Database.QueryRow(sqlQ, postID)
 
@@ -154,9 +154,8 @@ func GetPostList(w http.ResponseWriter, r *http.Request) {
 		}
 		count++
 	}
-
+	w.Header().Set("Content-Type", "application/json")
 	json, err := json.Marshal(posts[:count])
 
-	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "%s", json)
 }

@@ -75,10 +75,10 @@ func main() {
 	r.Route("/users", func(r chi.Router) {
 		r.With(paginate).Get("/", api.GetUserList) // GET /articles
 
-		r.Post("/", api.PutUser) // POST /articles
+		r.Post("/", api.PostUser) // POST /articles
 
 		// Subrouters:
-		r.Route("/{userId}", func(r chi.Router) {
+		r.Route("/{userID}", func(r chi.Router) {
 			r.Get("/", api.GetUser)       // GET /articles/123
 			r.Put("/", api.PutUser)       // PUT /articles/123
 			r.Delete("/", api.DeleteUser) // DELETE /articles/123
@@ -87,7 +87,7 @@ func main() {
 	r.Route("/posts", func(r chi.Router) {
 		r.With(paginate).Get("/", api.GetPostList) // GET /articles
 
-		r.Post("/", api.PostCar) // POST /articles
+		r.Post("/", api.PostPost) // POST /articles
 
 		// Subrouters:
 		r.Route("/{postID}", func(r chi.Router) {
@@ -99,7 +99,7 @@ func main() {
 	r.Route("/comments", func(r chi.Router) {
 		r.With(paginate).Get("/", api.GetCommentList) // GET /articles
 
-		r.Post("/", api.PutComment) // POST /articles
+		r.Post("/", api.PostComment) // POST /articles
 
 		// Subrouters:
 		r.Route("/{commentID}", func(r chi.Router) {

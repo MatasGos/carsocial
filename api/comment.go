@@ -14,15 +14,15 @@ import (
 type Comment struct {
 	ID     int    `json:"id"`
 	Text   string `json:"text"`
-	Fkpost string `json:"fk_post"`
-	Fkuser string `json:"fk_user"`
+	Fkpost int    `json:"fk_post"`
+	Fkuser int    `json:"fk_user"`
 }
 
 type commentSQL struct {
 	ID     int    `json:"id"`
 	Text   string `json:"text"`
-	Fkpost string `json:"fk_post"`
-	Fkuser string `json:"fk_user"`
+	Fkpost int    `json:"fk_post"`
+	Fkuser int    `json:"fk_user"`
 }
 
 //PostComment creates comment object

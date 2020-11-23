@@ -54,7 +54,7 @@ func PostUser(w http.ResponseWriter, r *http.Request) {
 			"name, username, phone, email, usercreated, role, password)" +
 			"VALUES ($1, $2, $3, $4, CURRENT_DATE, $5, $6);"
 
-		err = Database.QueryRow(sql, users[i].Name, users[i].Username, users[i].Phone, users[i].Email, users[i].UserCreated, users[i].Role, users[i].Password).Err()
+		err = Database.QueryRow(sql, users[i].Name, users[i].Username, users[i].Phone, users[i].Email, users[i].Role, users[i].Password).Err()
 		if err != nil {
 			http.Error(w, "wrong body structure", http.StatusBadRequest)
 			panic(err)
@@ -68,8 +68,8 @@ func PostUser(w http.ResponseWriter, r *http.Request) {
 //GetUser gets user object
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
-	sqlQ := "SELECT 	id, name, username, phone, email, usercreated, role, password" +
-		"FROM users WHERE id=$1"
+	sqlQ := "SELECT 	id, name, username, phone, email, usercreated, role, password " +
+		"FROM public.users WHERE id=$1"
 
 	row := Database.QueryRow(sqlQ, userID)
 
@@ -143,8 +143,6 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
 	}
-	fmt.Println(sqlPut)
-
 }
 
 //DeleteUser deletes user object
@@ -163,8 +161,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 //GetUserList returns users list
 func GetUserList(w http.ResponseWriter, r *http.Request) {
-	sqlQ := "SELECT 	id, name, username, phone, email, usercreated, role, password" +
-		"FROM users"
+	sqlQ := "SELECT 	id, name, username, phone, email, usercreated, role, password FROM users"
 
 	rows, err := Database.Query(sqlQ)
 	if err != nil {
@@ -186,7 +183,6 @@ func GetUserList(w http.ResponseWriter, r *http.Request) {
 		}
 		count++
 	}
-	json, err := json.Marshal(user[:count])
-
+	json, err := json.Marshal(users[:count])
 	fmt.Fprintf(w, "%s", json)
 }
