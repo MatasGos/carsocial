@@ -84,7 +84,7 @@ func createToken(id int, role string) string {
 	_, tokenString, _ := TokenAuth.Encode(jwt.MapClaims{
 		"id":   id,
 		"role": role,
-		"exp":  time.Now().Add(time.Minute * 50).Unix()})
+		"exp":  time.Now().Add(time.Minute * 60).Unix()})
 	fmt.Println(id)
 	fmt.Println(role)
 	return tokenString

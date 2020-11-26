@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
 
 	"github.com/MatasGos/simple/api"
@@ -65,53 +66,55 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(api.TokenAuth))
 		r.Use(jwtauth.Authenticator)
+		r.Use(isAdmin)
+	})
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(api.TokenAuth))
+		r.Use(jwtauth.Authenticator)
 
 		r.Route("/comments", func(r chi.Router) {
-			r.With(paginate).Get("/", api.GetCommentList) // GET /articles
+			r.With(paginate).Get("/", api.GetCommentList)
 
-			r.Post("/", api.PostComment) // POST /articles
+			r.Post("/", api.PostComment)
 
 			// Subrouters:
 			r.Route("/{commentID}", func(r chi.Router) {
-				r.Get("/", api.GetComment)       // GET /articles/123
-				r.Put("/", api.PutComment)       // PUT /articles/123
-				r.Delete("/", api.DeleteComment) // DELETE /articles/123
+				r.Get("/", api.GetComment)
+				r.Put("/", api.PutComment)
+				r.Delete("/", api.DeleteComment)
 			})
 		})
 		r.Route("/cars", func(r chi.Router) {
-			r.With(paginate).Get("/", api.GetCarList) // GET /articles
+			r.With(paginate).Get("/", api.GetCarList)
 
-			r.Post("/", api.PostCar) // POST /articles
-
+			r.Post("/", api.PostCar)
 			// Subrouters:
 			r.Route("/{carID}", func(r chi.Router) {
-				r.Get("/", api.GetCar)       // GET /articles/123
-				r.Put("/", api.PutCar)       // PUT /articles/123
-				r.Delete("/", api.DeleteCar) // DELETE /articles/123
+				r.Get("/", api.GetCar)
+				r.Put("/", api.PutCar)
+				r.Delete("/", api.DeleteCar)
 			})
 		})
 		r.Route("/users", func(r chi.Router) {
-			r.With(paginate).Get("/", api.GetUserList) // GET /articles
-
-			r.Post("/", api.PostUser) // POST /articles
+			r.With(paginate).Get("/", api.GetUserList)
+			r.Post("/", api.PostUser)
 
 			// Subrouters:
 			r.Route("/{userID}", func(r chi.Router) {
-				r.Get("/", api.GetUser)       // GET /articles/123
-				r.Put("/", api.PutUser)       // PUT /articles/123
-				r.Delete("/", api.DeleteUser) // DELETE /articles/123
+				r.Get("/", api.GetUser)
+				r.Put("/", api.PutUser)
+				r.Delete("/", api.DeleteUser)
 			})
 		})
 		r.Route("/posts", func(r chi.Router) {
-			r.With(paginate).Get("/", api.GetPostList) // GET /articles
+			r.With(paginate).Get("/", api.GetPostList)
 
-			r.Post("/", api.PostPost) // POST /articles
-
+			r.Post("/", api.PostPost)
 			// Subrouters:
 			r.Route("/{postID}", func(r chi.Router) {
-				r.Get("/", api.GetPost)       // GET /articles/123
-				r.Put("/", api.PutPost)       // PUT /articles/123
-				r.Delete("/", api.DeletePost) // DELETE /articles/123
+				r.Get("/", api.GetPost)
+				r.Put("/", api.PutPost)
+				r.Delete("/", api.DeletePost)
 			})
 		})
 	})
@@ -125,6 +128,8 @@ func main() {
 		r.Get("/posts/{postID}", api.GetPost)
 		r.Get("/posts/", api.GetPost)
 
+		r.Post("/users/", api.PostUser)
+
 	})
 	r.Route("/login", func(r chi.Router) {
 		r.Post("/", api.Login)
@@ -135,4 +140,19 @@ func main() {
 
 func init() {
 	api.TokenAuth = jwtauth.New("HS256", []byte(api.Jwtsecret), nil)
+}
+
+func isAdmin(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		token, err := api.TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+		if err != nil {
+			http.Error(w, "Not authorize", http.StatusUnauthorized)
+		}
+		fmt.Println(token.Claims.(jwt.MapClaims)["role"])
+		if token.Claims.(jwt.MapClaims)["role"] != "admin" {
+			http.Error(w, "Not authorize", http.StatusUnauthorized)
+		}
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }

@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/jwtauth"
 )
 
 //Comment is comment
@@ -105,7 +104,6 @@ func PutComment(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &newData)
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
-		panic(err)
 	}
 	//update
 	sqlPut := "UPDATE public.comments SET"
@@ -117,7 +115,6 @@ func PutComment(w http.ResponseWriter, r *http.Request) {
 	err = Database.QueryRow(sqlPut).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
-		panic(err)
 	}
 	fmt.Println(sqlPut)
 
@@ -132,7 +129,6 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	err := Database.QueryRow(sql, commentID).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
-		panic(err)
 	}
 
 	GetCommentList(w, r)
@@ -140,42 +136,29 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 
 //GetCommentList returns comment list
 func GetCommentList(w http.ResponseWriter, r *http.Request) {
-	jwtauth.Verifier(TokenAuth)
-	a := jwtauth.TokenFromHeader(r)
-	token, err := TokenAuth.Decode(a)
+
+	sqlQ := "SELECT 	id  ," +
+		"text ," +
+		"fk_post, fk_user FROM public.comments"
+
+	rows, err := Database.Query(sqlQ)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(token.Claims.Valid)
-	_, claims, _ := jwtauth.FromContext(r.Context())
-	fmt.Println(claims["id"])
-	fmt.Println(claims["role"])
-	fmt.Println(claims["exp"])
-
-	if claims["role"] == "admin" {
-
-		sqlQ := "SELECT 	id  ," +
-			"text ," +
-			"fk_post, fk_user FROM public.comments"
-
-		rows, err := Database.Query(sqlQ)
+	var comments [20]Comment
+	count := 0
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
 		if err != nil {
 			panic(err)
 		}
-		var comments [20]Comment
-		count := 0
-		defer rows.Close()
-		for rows.Next() {
-			err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
-			if err != nil {
-				panic(err)
-			}
-			count++
-		}
-
-		json, err := json.Marshal(comments[:count])
-
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "%s", json)
+		count++
 	}
+
+	json, err := json.Marshal(comments[:count])
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", json)
+
 }
