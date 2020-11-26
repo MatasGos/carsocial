@@ -127,7 +127,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 
 	err := Database.QueryRow(sql, postID).Err()
 	if err != nil {
-		http.Error(w, "wrong body structure", http.StatusBadRequest)
+		http.Error(w, "Failed delete", http.StatusBadRequest)
 		panic(err)
 	}
 
