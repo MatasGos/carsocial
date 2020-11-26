@@ -21,6 +21,8 @@ const PsqlInfo = "host=database-1.carhd0fhradi.eu-central-1.rds.amazonaws.com " 
 	"dbname=carsocial " +
 	"sslmode=disable "
 
+const Jwtsecret = "dgfadsgfasdg"
+
 //LoadJSON returns json from text file
 func LoadJSON(title string) (string, error) {
 	filename := "data/" + title + ".json"

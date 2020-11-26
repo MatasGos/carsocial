@@ -154,6 +154,13 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 		count++
 		sqlPut += " password='" + fmt.Sprint(newData.Password) + "'"
 	}
+	if newData.Role != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
+		sqlPut += " role='" + fmt.Sprint(newData.Role) + "'"
+	}
 	sqlPut += " WHERE id=" + fmt.Sprint(userID) + ";"
 
 	err = Database.QueryRow(sqlPut).Err()

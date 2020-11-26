@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 )
 
 //Comment is comment
@@ -56,6 +57,8 @@ func PostComment(w http.ResponseWriter, r *http.Request) {
 
 //GetComment returns comment object
 func GetComment(w http.ResponseWriter, r *http.Request) {
+	//jwauth.Verifier(r.Header.Get("Autohrization"))
+
 	commentID := chi.URLParam(r, "commentID")
 	sqlQ := "SELECT 	id  ," +
 		"text ," +
@@ -137,27 +140,42 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 
 //GetCommentList returns comment list
 func GetCommentList(w http.ResponseWriter, r *http.Request) {
-	sqlQ := "SELECT 	id  ," +
-		"text ," +
-		"fk_post, fk_user FROM public.comments"
-
-	rows, err := Database.Query(sqlQ)
+	jwtauth.Verifier(TokenAuth)
+	a := jwtauth.TokenFromHeader(r)
+	token, err := TokenAuth.Decode(a)
 	if err != nil {
 		panic(err)
 	}
-	var comments [20]Comment
-	count := 0
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
+	fmt.Println(token.Claims.Valid)
+	_, claims, _ := jwtauth.FromContext(r.Context())
+	fmt.Println(claims["id"])
+	fmt.Println(claims["role"])
+	fmt.Println(claims["exp"])
+
+	if claims["role"] == "admin" {
+
+		sqlQ := "SELECT 	id  ," +
+			"text ," +
+			"fk_post, fk_user FROM public.comments"
+
+		rows, err := Database.Query(sqlQ)
 		if err != nil {
 			panic(err)
 		}
-		count++
+		var comments [20]Comment
+		count := 0
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
+			if err != nil {
+				panic(err)
+			}
+			count++
+		}
+
+		json, err := json.Marshal(comments[:count])
+
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, "%s", json)
 	}
-
-	json, err := json.Marshal(comments[:count])
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "%s", json)
 }

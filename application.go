@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-chi/jwtauth"
+
 	"github.com/MatasGos/simple/api"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -60,54 +62,77 @@ func main() {
 		w.Write([]byte("pong"))
 	})
 
-	r.Route("/cars", func(r chi.Router) {
-		r.With(paginate).Get("/", api.GetCarList) // GET /articles
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(api.TokenAuth))
+		r.Use(jwtauth.Authenticator)
 
-		r.Post("/", api.PostCar) // POST /articles
+		r.Route("/comments", func(r chi.Router) {
+			r.With(paginate).Get("/", api.GetCommentList) // GET /articles
 
-		// Subrouters:
-		r.Route("/{carID}", func(r chi.Router) {
-			r.Get("/", api.GetCar)       // GET /articles/123
-			r.Put("/", api.PutCar)       // PUT /articles/123
-			r.Delete("/", api.DeleteCar) // DELETE /articles/123
+			r.Post("/", api.PostComment) // POST /articles
+
+			// Subrouters:
+			r.Route("/{commentID}", func(r chi.Router) {
+				r.Get("/", api.GetComment)       // GET /articles/123
+				r.Put("/", api.PutComment)       // PUT /articles/123
+				r.Delete("/", api.DeleteComment) // DELETE /articles/123
+			})
+		})
+		r.Route("/cars", func(r chi.Router) {
+			r.With(paginate).Get("/", api.GetCarList) // GET /articles
+
+			r.Post("/", api.PostCar) // POST /articles
+
+			// Subrouters:
+			r.Route("/{carID}", func(r chi.Router) {
+				r.Get("/", api.GetCar)       // GET /articles/123
+				r.Put("/", api.PutCar)       // PUT /articles/123
+				r.Delete("/", api.DeleteCar) // DELETE /articles/123
+			})
+		})
+		r.Route("/users", func(r chi.Router) {
+			r.With(paginate).Get("/", api.GetUserList) // GET /articles
+
+			r.Post("/", api.PostUser) // POST /articles
+
+			// Subrouters:
+			r.Route("/{userID}", func(r chi.Router) {
+				r.Get("/", api.GetUser)       // GET /articles/123
+				r.Put("/", api.PutUser)       // PUT /articles/123
+				r.Delete("/", api.DeleteUser) // DELETE /articles/123
+			})
+		})
+		r.Route("/posts", func(r chi.Router) {
+			r.With(paginate).Get("/", api.GetPostList) // GET /articles
+
+			r.Post("/", api.PostPost) // POST /articles
+
+			// Subrouters:
+			r.Route("/{postID}", func(r chi.Router) {
+				r.Get("/", api.GetPost)       // GET /articles/123
+				r.Put("/", api.PutPost)       // PUT /articles/123
+				r.Delete("/", api.DeletePost) // DELETE /articles/123
+			})
 		})
 	})
-	r.Route("/users", func(r chi.Router) {
-		r.With(paginate).Get("/", api.GetUserList) // GET /articles
+	r.Group(func(r chi.Router) {
+		r.Get("/comments/{commentID}", api.GetComment)
+		r.Get("/comments/", api.GetCommentList)
 
-		r.Post("/", api.PostUser) // POST /articles
+		r.Get("/cars/{carID}", api.GetCar)
+		r.Get("/cars/", api.GetCarList)
 
-		// Subrouters:
-		r.Route("/{userID}", func(r chi.Router) {
-			r.Get("/", api.GetUser)       // GET /articles/123
-			r.Put("/", api.PutUser)       // PUT /articles/123
-			r.Delete("/", api.DeleteUser) // DELETE /articles/123
-		})
+		r.Get("/posts/{postID}", api.GetPost)
+		r.Get("/posts/", api.GetPost)
+
 	})
-	r.Route("/posts", func(r chi.Router) {
-		r.With(paginate).Get("/", api.GetPostList) // GET /articles
-
-		r.Post("/", api.PostPost) // POST /articles
-
-		// Subrouters:
-		r.Route("/{postID}", func(r chi.Router) {
-			r.Get("/", api.GetPost)       // GET /articles/123
-			r.Put("/", api.PutPost)       // PUT /articles/123
-			r.Delete("/", api.DeletePost) // DELETE /articles/123
-		})
-	})
-	r.Route("/comments", func(r chi.Router) {
-		r.With(paginate).Get("/", api.GetCommentList) // GET /articles
-
-		r.Post("/", api.PostComment) // POST /articles
-
-		// Subrouters:
-		r.Route("/{commentID}", func(r chi.Router) {
-			r.Get("/", api.GetComment)       // GET /articles/123
-			r.Put("/", api.PutComment)       // PUT /articles/123
-			r.Delete("/", api.DeleteComment) // DELETE /articles/123
-		})
+	r.Route("/login", func(r chi.Router) {
+		r.Post("/", api.Login)
 	})
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
+}
+
+func init() {
+	api.TokenAuth = jwtauth.New("HS256", []byte(api.Jwtsecret), nil)
 }
