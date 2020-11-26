@@ -142,23 +142,45 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	//update
+	count := 0
 	sqlPut := "UPDATE public.cars SET"
 	if newData.Model != "" {
+		count++
 		sqlPut += " model='" + fmt.Sprint(newData.Model) + "'"
 	}
 	if newData.Manufacturer != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " manufacturer='" + fmt.Sprint(newData.Manufacturer) + "'"
 	}
 	if newData.Plate != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " late='" + fmt.Sprint(newData.Plate) + "'"
 	}
 	if newData.Color != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " color='" + fmt.Sprint(newData.Color) + "'"
 	}
 	if newData.Year != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " year='" + fmt.Sprint(newData.Year) + "'"
 	}
 	if newData.Vin != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " vin='" + fmt.Sprint(newData.Vin) + "'"
 	}
 	sqlPut += " WHERE id=" + fmt.Sprint(carID) + ";"
@@ -168,7 +190,6 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
 	}
-	fmt.Println(sqlPut)
 
 }
 

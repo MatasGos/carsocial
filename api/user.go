@@ -56,7 +56,7 @@ func PostUser(w http.ResponseWriter, r *http.Request) {
 
 		err = Database.QueryRow(sql, users[i].Name, users[i].Username, users[i].Phone, users[i].Email, users[i].Role, users[i].Password).Err()
 		if err != nil {
-			http.Error(w, "wrong body structure", http.StatusBadRequest)
+			http.Error(w, "wrong data", http.StatusBadRequest)
 			panic(err)
 		}
 	}
@@ -120,20 +120,38 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	//update
+	count := 0
 	sqlPut := "UPDATE public.users SET"
 	if newData.Name != "" {
 		sqlPut += " name='" + fmt.Sprint(newData.Name) + "'"
+		count++
 	}
 	if newData.Username != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " username='" + fmt.Sprint(newData.Username) + "'"
 	}
 	if newData.Phone != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " phone='" + fmt.Sprint(newData.Phone) + "'"
 	}
 	if newData.Email != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " email='" + fmt.Sprint(newData.Email) + "'"
 	}
 	if newData.Password != "" {
+		if count > 0 {
+			sqlPut += ","
+		}
+		count++
 		sqlPut += " password='" + fmt.Sprint(newData.Password) + "'"
 	}
 	sqlPut += " WHERE id=" + fmt.Sprint(userID) + ";"
