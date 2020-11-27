@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 )
 
 //Car is car
@@ -38,6 +40,7 @@ type carSQL struct {
 
 //PostCar create car object
 func PostCar(w http.ResponseWriter, r *http.Request) {
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
 
 	var cars []Car
 	body, err := ioutil.ReadAll(r.Body)
@@ -57,7 +60,7 @@ func PostCar(w http.ResponseWriter, r *http.Request) {
 			"model, manufacturer, plate, color, caradded, year, fk_user, vin)" +
 			"VALUES ($1, $2, $3, $4, CURRENT_DATE, $5, $6, $7);"
 
-		err = Database.QueryRow(sql, cars[i].Model, cars[i].Manufacturer, cars[i].Plate, cars[i].Color, cars[i].Year, cars[i].Fkuser, cars[i].Vin).Err()
+		err = Database.QueryRow(sql, cars[i].Model, cars[i].Manufacturer, cars[i].Plate, cars[i].Color, cars[i].Year, token.Claims.(jwt.MapClaims)["id"], cars[i].Vin).Err()
 		if err != nil {
 			http.Error(w, "wrong body structure", http.StatusBadRequest)
 			panic(err)
@@ -126,6 +129,28 @@ func GetCar(w http.ResponseWriter, r *http.Request) {
 //PutCar updates car object
 func PutCar(w http.ResponseWriter, r *http.Request) {
 	carID := chi.URLParam(r, "carID")
+	sqlQ := "SELECT fk_user  FROM cars WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, carID)
+
+	var cars Car
+	err := row.Scan(&cars.Fkuser)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested car no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != cars.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		panic(err)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 
 	//read body
@@ -196,9 +221,30 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 //DeleteCar remove car object
 func DeleteCar(w http.ResponseWriter, r *http.Request) {
 	carID := chi.URLParam(r, "carID")
+	sqlQ := "SELECT fk_user  FROM cars WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, carID)
+
+	var cars Car
+	err := row.Scan(&cars.Fkuser)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested car no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != cars.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		panic(err)
+	}
 	sql := "DELETE FROM public.cars WHERE id=$1;"
 
-	err := Database.QueryRow(sql, carID).Err()
+	err = Database.QueryRow(sql, carID).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)

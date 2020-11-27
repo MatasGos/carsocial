@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 )
 
 //Comment is comment
@@ -27,6 +29,8 @@ type commentSQL struct {
 
 //PostComment creates comment object
 func PostComment(w http.ResponseWriter, r *http.Request) {
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+
 	var comment commentSQL
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -44,7 +48,7 @@ func PostComment(w http.ResponseWriter, r *http.Request) {
 		"text, fk_post, fk_user)" +
 		"VALUES ($1, $2, $3);"
 
-	err = Database.QueryRow(sql, comment.Text, comment.Fkpost, comment.Fkuser).Err()
+	err = Database.QueryRow(sql, comment.Text, comment.Fkpost, token.Claims.(jwt.MapClaims)["id"]).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
@@ -90,7 +94,31 @@ func GetComment(w http.ResponseWriter, r *http.Request) {
 
 //PutComment updates comment object
 func PutComment(w http.ResponseWriter, r *http.Request) {
+
 	commentID := chi.URLParam(r, "commentID")
+	sqlQ := "SELECT 	id  ," +
+		"text ," +
+		"fk_post, fk_user FROM public.comments WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, commentID)
+
+	var comment Comment
+	err := row.Scan(&comment.ID, &comment.Text, &comment.Fkpost, &comment.Fkuser)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested comment no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != comment.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	//read body
@@ -123,12 +151,36 @@ func PutComment(w http.ResponseWriter, r *http.Request) {
 //DeleteComment removes comment object
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	commentID := chi.URLParam(r, "commentID")
+	sqlQ := "SELECT 	id  ," +
+		"text ," +
+		"fk_post, fk_user FROM public.comments WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, commentID)
+
+	var comment Comment
+	err := row.Scan(&comment.ID, &comment.Text, &comment.Fkpost, &comment.Fkuser)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested comment no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != comment.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		return
+	}
 
 	sql := "DELETE FROM public.comments WHERE id=$1;"
 
-	err := Database.QueryRow(sql, commentID).Err()
+	err = Database.QueryRow(sql, commentID).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
+		return
 	}
 
 	GetCommentList(w, r)
@@ -136,7 +188,6 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 
 //GetCommentList returns comment list
 func GetCommentList(w http.ResponseWriter, r *http.Request) {
-
 	sqlQ := "SELECT 	id  ," +
 		"text ," +
 		"fk_post, fk_user FROM public.comments"

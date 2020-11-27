@@ -20,10 +20,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-//=======================================
-
-//---------------------------------------
-
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := api.LoadJSON(title)
 	if err != nil {
@@ -126,7 +122,7 @@ func main() {
 		r.Get("/cars/", api.GetCarList)
 
 		r.Get("/posts/{postID}", api.GetPost)
-		r.Get("/posts/", api.GetPost)
+		r.Get("/posts/", api.GetPostList)
 
 		r.Post("/users/", api.PostUser)
 
@@ -148,7 +144,6 @@ func isAdmin(next http.Handler) http.Handler {
 		if err != nil {
 			http.Error(w, "Not authorize", http.StatusUnauthorized)
 		}
-		fmt.Println(token.Claims.(jwt.MapClaims)["role"])
 		if token.Claims.(jwt.MapClaims)["role"] != "admin" {
 			http.Error(w, "Not authorize", http.StatusUnauthorized)
 		}

@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 )
 
 //User is user
@@ -104,6 +106,28 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 //PutUser updates user object
 func PutUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
+	sqlQ := "SELECT 	id " +
+		"FROM public.users WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, userID)
+
+	var user User
+	err := row.Scan(&user.ID)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested user no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != user.ID && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		panic(err)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 
 	//read body
@@ -173,9 +197,30 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 //DeleteUser deletes user object
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
+	sqlQ := "SELECT 	id " +
+		"FROM public.users WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, userID)
+
+	var user User
+	err := row.Scan(&user.ID)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested user no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != user.ID && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		panic(err)
+	}
 	sql := "DELETE FROM public.users WHERE id=$1;"
 
-	err := Database.QueryRow(sql, userID).Err()
+	err = Database.QueryRow(sql, userID).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
@@ -208,6 +253,7 @@ func GetUserList(w http.ResponseWriter, r *http.Request) {
 		}
 		count++
 	}
+	w.Header().Set("Content-Type", "application/json")
 	json, err := json.Marshal(users[:count])
 	fmt.Fprintf(w, "%s", json)
 }

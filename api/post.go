@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 )
 
 //Post is post
@@ -27,6 +29,7 @@ type postSQL struct {
 
 //PostPost create post object
 func PostPost(w http.ResponseWriter, r *http.Request) {
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
 	var post postSQL
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -44,7 +47,7 @@ func PostPost(w http.ResponseWriter, r *http.Request) {
 		"text, fk_car, fk_user)" +
 		"VALUES ($1, $2, $3);"
 
-	err = Database.QueryRow(sql, post.Text, post.Fkcar, post.Fkuser).Err()
+	err = Database.QueryRow(sql, post.Text, post.Fkcar, token.Claims.(jwt.MapClaims)["id"]).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
@@ -89,6 +92,29 @@ func GetPost(w http.ResponseWriter, r *http.Request) {
 //PutPost updates post object
 func PutPost(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "postID")
+	sqlQ := "SELECT 	id  ," +
+		"text ," +
+		"fk_car, fk_user FROM public.posts WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, postID)
+
+	var post Post
+	err := row.Scan(&post.ID, &post.Text, &post.Fkcar, &post.Fkuser)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested post no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != post.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		panic(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	//read body
@@ -121,11 +147,35 @@ func PutPost(w http.ResponseWriter, r *http.Request) {
 
 //DeletePost delets post object
 func DeletePost(w http.ResponseWriter, r *http.Request) {
+
 	postID := chi.URLParam(r, "postID")
+	sqlQ := "SELECT 	id  ," +
+		"text ," +
+		"fk_car, fk_user FROM public.posts WHERE id=$1"
+
+	row := Database.QueryRow(sqlQ, postID)
+
+	var post Post
+	err := row.Scan(&post.ID, &post.Text, &post.Fkcar, &post.Fkuser)
+
+	switch err {
+	case sql.ErrNoRows:
+		http.Error(w, "requested post no longer exists", http.StatusNotFound)
+		return
+	case nil:
+	default:
+		panic(err)
+	}
+
+	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	if token.Claims.(jwt.MapClaims)["id"] != post.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
+		panic(err)
+	}
 
 	sql := "DELETE FROM public.posts WHERE id=$1;"
 
-	err := Database.QueryRow(sql, postID).Err()
+	err = Database.QueryRow(sql, postID).Err()
 	if err != nil {
 		http.Error(w, "Failed delete", http.StatusBadRequest)
 		panic(err)
