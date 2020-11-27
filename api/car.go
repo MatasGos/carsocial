@@ -185,7 +185,7 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 			sqlPut += ","
 		}
 		count++
-		sqlPut += " late='" + fmt.Sprint(newData.Plate) + "'"
+		sqlPut += " plate='" + fmt.Sprint(newData.Plate) + "'"
 	}
 	if newData.Color != "" {
 		if count > 0 {
