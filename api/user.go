@@ -179,7 +179,7 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 		count++
 		sqlPut += " password='" + fmt.Sprint(newData.Password) + "'"
 	}
-	if newData.Role != "" {
+	if newData.Role != "" && claims["role"] == "admin" {
 		if count > 0 {
 			sqlPut += ","
 		}
