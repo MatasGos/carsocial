@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 )
@@ -29,8 +28,7 @@ type commentSQL struct {
 
 //PostComment creates comment object
 func PostComment(w http.ResponseWriter, r *http.Request) {
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-
+	claims := GetToken(jwtauth.TokenFromHeader(r))
 	var comment commentSQL
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -48,7 +46,7 @@ func PostComment(w http.ResponseWriter, r *http.Request) {
 		"text, fk_post, fk_user)" +
 		"VALUES ($1, $2, $3);"
 
-	err = Database.QueryRow(sql, comment.Text, comment.Fkpost, token.Claims.(jwt.MapClaims)["id"]).Err()
+	err = Database.QueryRow(sql, comment.Text, comment.Fkpost, claims["id"]).Err()
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
@@ -114,8 +112,8 @@ func PutComment(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != comment.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != comment.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		return
 	}
@@ -169,8 +167,8 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != comment.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != comment.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		return
 	}

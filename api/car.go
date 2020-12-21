@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 )
@@ -40,7 +39,7 @@ type carSQL struct {
 
 //PostCar create car object
 func PostCar(w http.ResponseWriter, r *http.Request) {
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	claims := GetToken(jwtauth.TokenFromHeader(r))
 
 	var cars []Car
 	body, err := ioutil.ReadAll(r.Body)
@@ -60,7 +59,7 @@ func PostCar(w http.ResponseWriter, r *http.Request) {
 			"model, manufacturer, plate, color, caradded, year, fk_user, vin)" +
 			"VALUES ($1, $2, $3, $4, CURRENT_DATE, $5, $6, $7);"
 
-		err = Database.QueryRow(sql, cars[i].Model, cars[i].Manufacturer, cars[i].Plate, cars[i].Color, cars[i].Year, token.Claims.(jwt.MapClaims)["id"], cars[i].Vin).Err()
+		err = Database.QueryRow(sql, cars[i].Model, cars[i].Manufacturer, cars[i].Plate, cars[i].Color, cars[i].Year, claims["id"], cars[i].Vin).Err()
 		if err != nil {
 			http.Error(w, "wrong body structure", http.StatusBadRequest)
 			panic(err)
@@ -73,6 +72,7 @@ func PostCar(w http.ResponseWriter, r *http.Request) {
 
 //GetCar get car object
 func GetCar(w http.ResponseWriter, r *http.Request) {
+
 	carID := chi.URLParam(r, "carID")
 	sqlQ := "SELECT 	id  ," +
 		"model ," +
@@ -145,8 +145,8 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != cars.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != cars.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
@@ -237,8 +237,8 @@ func DeleteCar(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != cars.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != cars.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}

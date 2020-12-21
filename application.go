@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
 
 	"github.com/MatasGos/simple/api"
@@ -149,11 +148,11 @@ func init() {
 
 func isAdmin(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		token, err := api.TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+		_, err := api.TokenAuth.Decode(jwtauth.TokenFromHeader(r))
 		if err != nil {
 			http.Error(w, "Not authorize", http.StatusUnauthorized)
 		}
-		if token.Claims.(jwt.MapClaims)["role"] != "admin" {
+		if api.GetToken(jwtauth.TokenFromHeader(r))["role"] != "admin" {
 			http.Error(w, "Not authorize", http.StatusUnauthorized)
 		}
 		next.ServeHTTP(w, r)

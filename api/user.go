@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 )
@@ -69,6 +68,7 @@ func PostUser(w http.ResponseWriter, r *http.Request) {
 
 //GetUser gets user object
 func GetUser(w http.ResponseWriter, r *http.Request) {
+
 	userID := chi.URLParam(r, "userID")
 	sqlQ := "SELECT 	id, name, username, phone, email, usercreated, role, password " +
 		"FROM public.users WHERE id=$1"
@@ -122,8 +122,9 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	default:
 		panic(err)
 	}
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != user.ID && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != user.ID && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
@@ -213,8 +214,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	default:
 		panic(err)
 	}
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != user.ID && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != user.ID && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}

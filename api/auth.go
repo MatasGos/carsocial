@@ -35,7 +35,6 @@ var TokenAuth *jwtauth.JWTAuth
 
 //Login good
 func Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	var temp login
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -86,9 +85,32 @@ func createToken(id int, role string) string {
 		"id":   id,
 		"role": role,
 		"exp":  time.Now().Add(time.Minute * 6000).Unix()})
-	fmt.Println(id)
-	fmt.Println(role)
+	// fmt.Println(id)
+	// fmt.Println(role)
+
+	print(tokenString)
+	GetToken(tokenString)
+	//token, _ := TokenAuth.Decode(tokenString)
+	//println(token.)
 	return tokenString
+}
+
+// GetToken is
+func GetToken(tokenString string) map[string]interface{} {
+	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return Jwtsecret, nil
+	})
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok {
+		return claims
+	}
+	return nil
 }
 
 //
