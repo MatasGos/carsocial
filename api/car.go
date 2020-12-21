@@ -126,6 +126,54 @@ func GetCar(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//GetCarsByUser get car object
+func GetCarsByUser(w http.ResponseWriter, r *http.Request) {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	sql := "SELECT " +
+		"model ," +
+		"manufacturer, " +
+		"color, " +
+		"year,  " +
+		"fk_user, vin FROM cars WHERE fk_user=$1"
+
+	rows, err := Database.Query(sql, claims["id"])
+	if err != nil {
+		panic(err)
+	}
+	var cars [20]Car
+	count := 0
+	defer rows.Close()
+	for rows.Next() {
+		var car carSQL
+		err = rows.Scan(&cars[count].ID, &cars[count].Model, &cars[count].Manufacturer, &car.Plate, &car.Color, &car.Caradded, &car.Year, &cars[count].Fkuser, &car.Vin)
+		if err != nil {
+			panic(err)
+		}
+		if car.Plate.Valid {
+			cars[count].Plate = string(car.Plate.String)
+		}
+		if car.Color.Valid {
+			cars[count].Color = string(car.Color.String)
+		}
+		if car.Caradded.Valid {
+			cars[count].Caradded = time.Time(car.Caradded.Time)
+		}
+		if car.Year.Valid {
+			cars[count].Year = string(car.Year.String)
+		}
+		if car.Vin.Valid {
+			cars[count].Vin = string(car.Vin.String)
+		}
+		count++
+	}
+
+	json, err := json.Marshal(cars[:count])
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", json)
+
+}
+
 //PutCar updates car object
 func PutCar(w http.ResponseWriter, r *http.Request) {
 	carID := chi.URLParam(r, "carID")
