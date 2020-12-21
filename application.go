@@ -76,6 +76,11 @@ func main() {
 		r.Use(jwtauth.Verifier(api.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 
+		r.Route("/post", func(r chi.Router) {
+			r.Route("/{postID}", func(r chi.Router) {
+				r.Get("/", api.GetCommentFull)
+			})
+		})
 		r.Route("/comments", func(r chi.Router) {
 			r.With(paginate).Get("/", api.GetCommentList)
 

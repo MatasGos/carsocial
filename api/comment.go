@@ -211,3 +211,32 @@ func GetCommentList(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", json)
 
 }
+
+//GetCommentFull returns comment list
+func GetCommentFull(w http.ResponseWriter, r *http.Request) {
+	postID := chi.URLParam(r, "postID")
+	sqlQ := "SELECT 	id  ," +
+		"text ," +
+		"fk_post, fk_user FROM public.comments WHERE fk_post=$1"
+
+	rows, err := Database.Query(sqlQ, postID)
+	if err != nil {
+		panic(err)
+	}
+	var comments [20]Comment
+	count := 0
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
+		if err != nil {
+			panic(err)
+		}
+		count++
+	}
+
+	json, err := json.Marshal(comments[:count])
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", json)
+
+}
