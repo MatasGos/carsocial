@@ -56,7 +56,7 @@ func PostUser(w http.ResponseWriter, r *http.Request) {
 			"name, username, phone, email, usercreated, role, password)" +
 			"VALUES ($1, $2, $3, $4, CURRENT_DATE, $5, $6);"
 
-		err = Database.QueryRow(sql, users[i].Name, users[i].Username, users[i].Phone, users[i].Email, users[i].Role, users[i].Password).Err()
+		err = Database.QueryRow(sql, users[i].Name, users[i].Username, users[i].Phone, users[i].Email, "user", users[i].Password).Err()
 		if err != nil {
 			http.Error(w, "wrong data", http.StatusBadRequest)
 			panic(err)

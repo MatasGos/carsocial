@@ -35,6 +35,7 @@ var TokenAuth *jwtauth.JWTAuth
 
 //Login good
 func Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	var temp login
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -62,7 +63,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	default:
 		panic(err)
 	}
-
 	if user.Password == temp.Password {
 		token := createToken(user.ID, user.Role)
 		var tokenObj Token
@@ -77,6 +77,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "bad login", http.StatusBadRequest)
 	}
+	print(w.Header)
 }
 
 func createToken(id int, role string) string {
@@ -84,7 +85,7 @@ func createToken(id int, role string) string {
 	_, tokenString, _ := TokenAuth.Encode(jwt.MapClaims{
 		"id":   id,
 		"role": role,
-		"exp":  time.Now().Add(time.Minute * 60).Unix()})
+		"exp":  time.Now().Add(time.Minute * 6000).Unix()})
 	fmt.Println(id)
 	fmt.Println(role)
 	return tokenString
