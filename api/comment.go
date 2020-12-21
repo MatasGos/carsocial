@@ -13,10 +13,11 @@ import (
 
 //Comment is comment
 type Comment struct {
-	ID     int    `json:"id"`
-	Text   string `json:"text"`
-	Fkpost int    `json:"fk_post"`
-	Fkuser int    `json:"fk_user"`
+	ID       int    `json:"id"`
+	Text     string `json:"text"`
+	Fkpost   int    `json:"fk_post"`
+	Fkuser   int    `json:"fk_user"`
+	Username string `json:"username"`
 }
 
 type commentSQL struct {
@@ -215,9 +216,9 @@ func GetCommentList(w http.ResponseWriter, r *http.Request) {
 //GetCommentFull returns comment list
 func GetCommentFull(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "postID")
-	sqlQ := "SELECT 	id  ," +
-		"text ," +
-		"fk_post, fk_user FROM public.comments WHERE fk_post=$1"
+	sqlQ := "SELECT 	comments.id as id ," +
+		"text , fk_post, fk_user username FROM public.comments left join public.users   ON public.users.id=public.comments.fk_user " +
+		"WHERE fk_post=$1"
 
 	rows, err := Database.Query(sqlQ, postID)
 	if err != nil {
