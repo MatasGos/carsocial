@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
 )
@@ -29,7 +28,7 @@ type postSQL struct {
 
 //PostPost create post object
 func PostPost(w http.ResponseWriter, r *http.Request) {
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
+	claims := GetToken(jwtauth.TokenFromHeader(r))
 	var post postSQL
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -44,10 +43,11 @@ func PostPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sql := "INSERT INTO public.posts(" +
-		"text, fk_car, fk_user)" +
+		"text, fk_car, fk_user) " +
 		"VALUES ($1, $2, $3);"
 
-	err = Database.QueryRow(sql, post.Text, post.Fkcar, token.Claims.(jwt.MapClaims)["id"]).Err()
+	err = Database.QueryRow(sql, post.Text, post.Fkcar, claims["id"]).Err()
+	fmt.Println(sql)
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
 		panic(err)
@@ -110,8 +110,8 @@ func PutPost(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != post.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != post.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
@@ -167,8 +167,8 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	token, err := TokenAuth.Decode(jwtauth.TokenFromHeader(r))
-	if token.Claims.(jwt.MapClaims)["id"] != post.Fkuser && token.Claims.(jwt.MapClaims)["role"] != "admin" {
+	claims := GetToken(jwtauth.TokenFromHeader(r))
+	if claims["id"] != post.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
