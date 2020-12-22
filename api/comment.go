@@ -217,7 +217,7 @@ func GetCommentList(w http.ResponseWriter, r *http.Request) {
 func GetCommentFull(w http.ResponseWriter, r *http.Request) {
 	postID := chi.URLParam(r, "postID")
 	sqlQ := "SELECT 	comments.id as id ," +
-		"text , fk_post, fk_user username FROM public.comments left join public.users   ON public.users.id=public.comments.fk_user " +
+		"text , fk_post, fk_user, public.users.username as username FROM public.comments left join public.users   ON public.users.id=public.comments.fk_user " +
 		"WHERE fk_post=$1"
 
 	rows, err := Database.Query(sqlQ, postID)
@@ -228,7 +228,7 @@ func GetCommentFull(w http.ResponseWriter, r *http.Request) {
 	count := 0
 	defer rows.Close()
 	for rows.Next() {
-		err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser)
+		err := rows.Scan(&comments[count].ID, &comments[count].Text, &comments[count].Fkpost, &comments[count].Fkuser, &comments[count].Username)
 		if err != nil {
 			panic(err)
 		}

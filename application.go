@@ -135,6 +135,7 @@ func main() {
 		r.Get("/cars/", api.GetCarList)
 
 		r.Get("/posts/{postID}", api.GetPost)
+		r.Get("/post/{postID}", api.GetCommentFull)
 		r.Get("/posts/", api.GetPostList)
 
 		r.Post("/users/", api.PostUser)
