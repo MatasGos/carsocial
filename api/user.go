@@ -62,7 +62,6 @@ func PostUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	GetUserList(w, r)
 	w.WriteHeader(http.StatusCreated)
 }
 

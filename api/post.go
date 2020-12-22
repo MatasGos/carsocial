@@ -33,13 +33,11 @@ func PostPost(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "can't read body", http.StatusBadRequest)
-		panic(err)
 	}
 
 	err = json.Unmarshal(body, &post)
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
-		panic(err)
 	}
 
 	sql := "INSERT INTO public.posts(" +
@@ -50,10 +48,7 @@ func PostPost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(sql)
 	if err != nil {
 		http.Error(w, "wrong body structure", http.StatusBadRequest)
-		panic(err)
 	}
-
-	GetPostList(w, r)
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -111,7 +106,7 @@ func PutPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	claims := GetToken(jwtauth.TokenFromHeader(r))
-	if claims["id"] != post.Fkuser && claims["role"] != "admin" {
+	if claims["id"] != post.Fkuser || claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
@@ -168,7 +163,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	claims := GetToken(jwtauth.TokenFromHeader(r))
-	if claims["id"] != post.Fkuser && claims["role"] != "admin" {
+	if claims["id"] != post.Fkuser || claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}

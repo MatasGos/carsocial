@@ -65,8 +65,6 @@ func PostCar(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	}
-
-	GetCarList(w, r)
 	w.WriteHeader(http.StatusCreated)
 }
 

@@ -53,7 +53,6 @@ func PostComment(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	GetCommentList(w, r)
 	w.WriteHeader(http.StatusCreated)
 }
 
