@@ -104,9 +104,8 @@ func PutPost(w http.ResponseWriter, r *http.Request) {
 	default:
 		panic(err)
 	}
-
 	claims := GetToken(jwtauth.TokenFromHeader(r))
-	if claims["id"] != post.Fkuser || claims["role"] != "admin" {
+	if claims["id"] != post.Fkuser && claims["role"] != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
@@ -183,13 +182,13 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 func GetPostList(w http.ResponseWriter, r *http.Request) {
 	sqlQ := "SELECT 	id  ," +
 		"text ," +
-		"fk_car, fk_user FROM public.posts"
+		"fk_car, fk_user FROM public.posts LIMIT 50"
 
 	rows, err := Database.Query(sqlQ)
 	if err != nil {
 		panic(err)
 	}
-	var posts [20]Post
+	var posts [50]Post
 	count := 0
 	defer rows.Close()
 	for rows.Next() {

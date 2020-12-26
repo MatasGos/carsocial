@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -85,7 +86,7 @@ func GetCar(w http.ResponseWriter, r *http.Request) {
 
 	var cars Car
 	var car carSQL
-	err := row.Scan(&cars.ID, &car.Model, &cars.Manufacturer, &car.Plate,
+	err := row.Scan(&cars.ID, &cars.Model, &cars.Manufacturer, &car.Plate,
 		&car.Color, &car.Caradded, &car.Year, &cars.Fkuser, &car.Vin)
 
 	switch err {
@@ -192,7 +193,9 @@ func PutCar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	claims := GetToken(jwtauth.TokenFromHeader(r))
-	if claims["id"] != cars.Fkuser && claims["role"] != "admin" {
+	id, _ := strconv.ParseFloat(cars.Fkuser, 32)
+	var role = claims["role"]
+	if id != claims["id"] && role != "admin" {
 		http.Error(w, "Unauthorized action", http.StatusUnauthorized)
 		panic(err)
 	}
